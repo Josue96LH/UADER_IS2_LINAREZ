@@ -26,22 +26,36 @@ def calcular_factoriales(desde, hasta):
         print("El factorial de", num, "es", factorial(num))
 
 
-if len(sys.argv) < 2:
-    while True:
-        try:
-            rango = input("Ingrese un rango de números en el formato desde-hasta (ej. 4-8): ")
-            desde, hasta = map(int, rango.split('-'))
-            if desde > hasta:
-                print("El primer número debe ser menor o igual que el segundo.")
-            else:
-                break
-        except ValueError:
-            print("Por favor, ingrese un rango válido en el formato desde-hasta.")
-else:
-    rango = sys.argv[1]
-    desde, hasta = map(int, rango.split('-'))
-    if desde > hasta:
-        print("El primer número debe ser menor o igual que el segundo.")
+def procesar_rango(rango):
+    partes = rango.split('-')
+    if len(partes) == 1:
+        numero = int(partes[0])
+        if numero < 1:
+            print("El número debe ser mayor o igual que 1.")
+            sys.exit()
+        calcular_factoriales(1, numero)
+    elif len(partes) == 2:
+        if partes[0]:  # Si hay un límite inferior
+            desde = int(partes[0])
+        else:
+            desde = 1
+        if partes[1]:  # Si hay un límite superior
+            hasta = int(partes[1])
+        else:
+            hasta = 60
+        if desde > hasta:
+            print("El primer número debe ser menor o igual que el segundo.")
+            sys.exit()
+        calcular_factoriales(desde, hasta)
+    else:
+        print("Formato de rango incorrecto.")
         sys.exit()
 
-calcular_factoriales(desde, hasta)
+
+if len(sys.argv) < 2:
+    while True:
+        rango = input("Ingrese un rango de números en el formato desde-hasta (ej. 4-8), o indique solo el límite superior (-10): ")
+        procesar_rango(rango)
+else:
+    rango = sys.argv[1]
+    procesar_rango(rango)
