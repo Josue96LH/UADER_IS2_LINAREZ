@@ -1,14 +1,25 @@
-import openai
 import sys
+import openai
 
 # Define tu clave de API de OpenAI
-openai.api_key = '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'
+openai.api_key = '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'
 
-ultima_consulta = ""  # Variable para almacenar la última consulta
-buffer_conversacion = []  # Buffer para almacenar consultas y respuestas anteriores
+# Variables para mantener el estado de la conversación
+ULTIMA_CONSULTA = ""  # Almacena la última consulta realizada
+BUFFER_CONVERSACION = []  # Buffer para almacenar consultas y respuestas anteriores
 
-def invocar_chatGPT(consulta):
+def invocar_chat_gpt(consulta):
+    """
+    Invoca el modelo de ChatGPT de OpenAI para generar una respuesta dada una consulta.
+
+    Parameters:
+        consulta (str): La consulta para la cual se solicita una respuesta.
+
+    Returns:
+        str: La respuesta generada por el modelo de ChatGPT.
+    """
     try:
+        # Llamada a la API de OpenAI para generar una respuesta de ChatGPT
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo-0125",
             messages=[
@@ -19,52 +30,65 @@ def invocar_chatGPT(consulta):
             max_tokens=150,
             stop=["\n"]
         )
-        return response.choices[0].message['content']
-    except Exception as e:
+        return response.choices[0].message['content']  # Devuelve el contenido de la respuesta generada
+    except openai.OpenAIError as e:
         return f"Error al invocar el modelo de chatGPT: {e}"
 
 def main():
-    global ultima_consulta, buffer_conversacion
+    """
+    Función principal del programa.
+    """
+    global ULTIMA_CONSULTA, BUFFER_CONVERSACION
     
     # Verifica si se ha pasado el argumento "--convers"
-    if "--convers" in sys.argv:
-        modo_conversacion = True
-    else:
-        modo_conversacion = False
+    modo_conversacion = "--convers" in sys.argv
     
     while True:
         try:
+            # Solicita al usuario que ingrese una consulta
             consulta_usuario = input("Ingresa tu consulta (o 'salir' para terminar): ")
             
+            # Verifica si el usuario quiere salir del programa
             if consulta_usuario.lower() == 'salir':
                 print("¡Adiós!")
                 break
             
-            if consulta_usuario.strip():  # Verifica si la consulta tiene texto
-                print("You:", consulta_usuario)  # Imprime la consulta del usuario con el prefijo "You:"
-                ultima_consulta = consulta_usuario  # Almacena la última consulta
+            # Verifica si la consulta del usuario está vacía
+            if consulta_usuario.strip():
+                # Imprime la consulta del usuario con el prefijo "You:"
+                print("You:", consulta_usuario)
                 
+                # Almacena la última consulta realizada
+                ULTIMA_CONSULTA = consulta_usuario
+                
+                # Agrega la consulta al buffer de conversación si está en modo conversación
                 if modo_conversacion:
-                    buffer_conversacion.append(("You:", consulta_usuario))
+                    BUFFER_CONVERSACION.append(("You:", consulta_usuario))
                 
                 try:
+                    # Genera una respuesta de ChatGPT basada en la consulta del usuario
                     if modo_conversacion:
-                        respuesta_chatGPT = invocar_chatGPT(" ".join(buffer_conversacion[-1][1:]))  # Utiliza la última consulta realizada
+                        # Si está en modo conversación, utiliza la última consulta realizada para generar una respuesta
+                        respuesta_chat_gpt = invocar_chat_gpt(" ".join(BUFFER_CONVERSACION[-1][1:]))
                     else:
-                        respuesta_chatGPT = invocar_chatGPT(consulta_usuario)  # Invoca la función para obtener la respuesta de chatGPT
+                        # Si no está en modo conversación, genera una respuesta basada en la consulta actual
+                        respuesta_chat_gpt = invocar_chat_gpt(consulta_usuario)
                     
-                    print("chatGPT:", respuesta_chatGPT)  # Imprime la respuesta de chatGPT con el prefijo "chatGPT:"
+                    # Imprime la respuesta de ChatGPT con el prefijo "chatGPT:"
+                    print("chatGPT:", respuesta_chat_gpt)
                     
+                    # Agrega la respuesta al buffer de conversación si está en modo conversación
                     if modo_conversacion:
-                        buffer_conversacion.append(("chatGPT:", respuesta_chatGPT))
+                        BUFFER_CONVERSACION.append(("chatGPT:", respuesta_chat_gpt))
                     
-                except Exception as e:
+                except openai.OpenAIError as e:
                     print(f"Error al obtener respuesta de chatGPT: {e}")
             else:
                 print("Por favor, ingresa una consulta válida.")
         
         except KeyboardInterrupt:  # Captura la excepción cuando se presiona "cursor Up"
-            print("\nConsulta anterior recuperada:", ultima_consulta)
+            # Recupera la última consulta cuando se presiona "cursor Up"
+            print("\nConsulta anterior recuperada:", ULTIMA_CONSULTA)
             continue
         
         except Exception as e:
