@@ -1,8 +1,8 @@
 import openai
 
 # Define tu clave de API de OpenAI
-key = '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'
-openai.api_key = key
+
+openai.api_key = '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'
 
 ultima_consulta = ""  # Variable para almacenar la última consulta
 
