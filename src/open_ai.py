@@ -1,10 +1,11 @@
 import openai
+import sys
 
 # Define tu clave de API de OpenAI
-
 openai.api_key = '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'
 
 ultima_consulta = ""  # Variable para almacenar la última consulta
+buffer_conversacion = []  # Buffer para almacenar consultas y respuestas anteriores
 
 def invocar_chatGPT(consulta):
     try:
@@ -23,7 +24,13 @@ def invocar_chatGPT(consulta):
         return f"Error al invocar el modelo de chatGPT: {e}"
 
 def main():
-    global ultima_consulta  # Declarar la variable global
+    global ultima_consulta, buffer_conversacion
+    
+    # Verifica si se ha pasado el argumento "--convers"
+    if "--convers" in sys.argv:
+        modo_conversacion = True
+    else:
+        modo_conversacion = False
     
     while True:
         try:
@@ -37,10 +44,20 @@ def main():
                 print("You:", consulta_usuario)  # Imprime la consulta del usuario con el prefijo "You:"
                 ultima_consulta = consulta_usuario  # Almacena la última consulta
                 
+                if modo_conversacion:
+                    buffer_conversacion.append(("You:", consulta_usuario))
+                
                 try:
-                    respuesta_chatGPT = invocar_chatGPT(consulta_usuario)  # Invoca la función para obtener la respuesta de chatGPT
+                    if modo_conversacion:
+                        respuesta_chatGPT = invocar_chatGPT(" ".join(buffer_conversacion[-1][1:]))  # Utiliza la última consulta realizada
+                    else:
+                        respuesta_chatGPT = invocar_chatGPT(consulta_usuario)  # Invoca la función para obtener la respuesta de chatGPT
                     
                     print("chatGPT:", respuesta_chatGPT)  # Imprime la respuesta de chatGPT con el prefijo "chatGPT:"
+                    
+                    if modo_conversacion:
+                        buffer_conversacion.append(("chatGPT:", respuesta_chatGPT))
+                    
                 except Exception as e:
                     print(f"Error al obtener respuesta de chatGPT: {e}")
             else:
