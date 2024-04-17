@@ -8,6 +8,8 @@
 # anidamientos y que la carga simulada de procesamiento dure 2 segundos.
 # ------------------------------------------------------------------------------------------------------------------
 
+"""En este caso use el programa IS2_taller_prototipo.py"""
+
 import time
 from datetime import datetime
 import copy

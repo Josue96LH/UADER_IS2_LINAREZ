@@ -9,7 +9,7 @@
 # avión tiene un “body”, 2 turbinas, 2 alas y un tren de aterrizaje.
 # ------------------------------------------------------------------------------------------------------------------
 
-"""En este caso use el IS2_taller_car.py"""
+"""En este caso use el programa IS2_taller_car.py"""
 
 import os
 
@@ -123,6 +123,7 @@ class Wing:
     """Clase que representa un ala de avión."""
     # Se pueden agregar más atributos según sea necesario
     pass
+
 
 class Body:
     """Clase que representa el cuerpo de un avión."""
